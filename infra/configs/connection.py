@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 class DBConnectionHandler:
     def __init__(self):
         # Dados de endereço do banco de dados
-        self.__connection_string = 'mysql+pymysql://root:Senac2021@localhost:3306/notas'
+        self.__connection_string = 'mysql+pymysql://root:Senac2021@localhost:3306/clientes'
         # Instância do engine(gerenciador do banco)
         self.__engine = self.__create_data_base_engine()
         # Sessão nula para que possa ser alocada uma nova ao ser instanciado um obj

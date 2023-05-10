@@ -2,7 +2,7 @@ from infra.configs.base import Base
 from sqlalchemy import Column, String
 
 class Cliente(Base):
-    __tablename__ = 'cliente'
+    __tablename__ = 'clientes'
 
     cpf = Column(String(100), primary_key=True)
     nome_cliente = Column(String(100), nullable=False)
