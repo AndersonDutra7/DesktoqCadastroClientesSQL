@@ -12,7 +12,6 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self.setMinimumSize(400, 300)
-
         self.setWindowTitle('Cadastro de Clientes')
 
         self.lbl_cpf = QLabel('CPF')
@@ -246,9 +245,17 @@ class MainWindow(QMainWindow):
         lista_clientes = db.select_all()
         self.tabela_clientes.setRowCount(len(lista_clientes))
 
-        for linha, cliente in enumerate(lista_clientes):
-            for coluna, valor in enumerate(cliente):
-                self.tabela_clientes.setItem(linha, coluna, QTableWidgetItem(str(valor)))
+        linha = 0
+
+        for cliente in lista_clientes:
+            valores = [cliente.cpf, cliente.nome_cliente, cliente.telefone_fixo, cliente.telefone_celular,
+                       cliente.sexo, cliente.cep, cliente.logradouro, cliente.numero, cliente.complemento,
+                       cliente.bairro, cliente.estado]
+            for valor in valores:
+                item = QTableWidgetItem(str(valor))
+                self.carrega_dados.setItem(linha, valores.index(valor), item)
+                self.carrega_dados.item(linha, valores.index(valor))
+            linha += 1
 
     def carrega_dados(self, row, column):
         self.txt_cpf.setText(self.tabela_clientes.item(row, 0).text())

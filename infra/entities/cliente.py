@@ -1,9 +1,11 @@
 from infra.configs.base import Base
 from sqlalchemy import Column, String
 
-class Cliente(Base):
-    __tablename__ = 'clientes'
 
+class Cliente(Base):
+    __tablename__ = 'cliente'
+
+    # id = Column(Integer, autoincrement=True, primary_key=True)
     cpf = Column(String(100), primary_key=True)
     nome_cliente = Column(String(100), nullable=False)
     telefone_fixo = Column(String(100), nullable=False)
