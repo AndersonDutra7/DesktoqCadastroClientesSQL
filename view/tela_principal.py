@@ -1,8 +1,9 @@
 from PySide6 import QtWidgets
 from PySide6.QtWidgets import (QMainWindow, QVBoxLayout, QComboBox, QLabel, QLineEdit, QWidget, QPushButton,
                                QMessageBox, QSizePolicy, QTableWidget, QAbstractItemView, QTableWidgetItem)
-from sqlalchemy.dialects.mssql import json
 
+
+from sqlalchemy.dialects.mssql import json
 from infra.entities.cliente import Cliente
 from infra.repository.cliente_repository import ClientesRepository
 from infra.configs.connection import DBConnectionHandler
@@ -99,14 +100,16 @@ class MainWindow(QMainWindow):
         self.btn_remover.clicked.connect(self.remover_cliente)
         self.btn_limpar.clicked.connect(self.limpar_campos)
         self.tabela_clientes.cellDoubleClicked.connect(self.carrega_dados)
-        self.popula_tabela_clientes()
+        # self.popula_tabela_clientes()
+        db_hand = DBConnectionHandler()
+
 
     def salvar_cliente(self):
         db = ClientesRepository()
 
         cliente = Cliente(
             cpf=self.txt_cpf.text(),
-            nome=self.txt_nome.text(),
+            nome_cliente=self.txt_nome.text(),
             telefone_fixo=self.txt_telefone_fixo.text(),
             telefone_celular=self.txt_telefone_celular.text(),
             sexo=self.cb_sexo.currentText(),
@@ -156,14 +159,15 @@ class MainWindow(QMainWindow):
                 msg.setWindowTitle('Erro ao atualizar ')
                 msg.setText('Erro ao atualziar verifique, os dados inseridos')
                 msg.exec()
-        self.popula_tabela_clientes()
+        # self.popula_tabela_clientes()
         self.txt_cpf.setReadOnly(False)
 
 
     def consultar_cliente(self):
         if self.txt_cpf.text() != '':
             db = ClientesRepository()
-            retorno = db.select_all(str(self.txt_cpf.text()))
+            # retorno = db.select_all(str(self.txt_cpf.text()))
+            retorno = db.select(str(self.txt_cpf.text()))
 
             if retorno is not None:
                 self.btn_salvar.setText('Atualizar')
@@ -184,6 +188,7 @@ class MainWindow(QMainWindow):
                 self.txt_municipio.setText(retorno[10])
                 self.txt_estado.setText(retorno[11])
                 self.btn_remover.setVisible(True)
+
 
     def remover_cliente(self):
         db = ClientesRepository()
@@ -209,7 +214,7 @@ class MainWindow(QMainWindow):
                 nv_msg.setWindowTitle('Remover Cliente')
                 nv_msg.setText('Erro ao remover cliente.')
                 nv_msg.exec()
-        self.popula_tabela_clientes()
+        # self.popula_tabela_clientes()
         self.txt_cpf.setReadOnly(False)
 
     def limpar_campos(self):
@@ -239,23 +244,23 @@ class MainWindow(QMainWindow):
             msg.setText('Erro ao consultar CEP, verifique os dados inseridos.')
             msg.exec()
 
-    def popula_tabela_clientes(self):
-        self.tabela_clientes.setRowCount(0)
-        db = ClientesRepository()
-        lista_clientes = db.select_all()
-        self.tabela_clientes.setRowCount(len(lista_clientes))
-
-        linha = 0
-
-        for cliente in lista_clientes:
-            valores = [cliente.cpf, cliente.nome_cliente, cliente.telefone_fixo, cliente.telefone_celular,
-                       cliente.sexo, cliente.cep, cliente.logradouro, cliente.numero, cliente.complemento,
-                       cliente.bairro, cliente.estado]
-            for valor in valores:
-                item = QTableWidgetItem(str(valor))
-                self.carrega_dados.setItem(linha, valores.index(valor), item)
-                self.carrega_dados.item(linha, valores.index(valor))
-            linha += 1
+    # def popula_tabela_clientes(self):
+    #     self.tabela_clientes.setRowCount(0)
+    #     db = ClientesRepository()
+    #     lista_clientes = db.select()
+    #     self.tabela_clientes.setRowCount(len(lista_clientes))
+    #
+    #     linha = 0
+    #
+    #     for cliente in lista_clientes:
+    #         valores = [cliente.cpf, cliente.nome_cliente, cliente.telefone_fixo, cliente.telefone_celular,
+    #                    cliente.sexo, cliente.cep, cliente.logradouro, cliente.numero, cliente.complemento,
+    #                    cliente.bairro, cliente.estado]
+    #         for valor in valores:
+    #             item = QTableWidgetItem(str(valor))
+    #             self.carrega_dados.setItem(linha, valores.index(valor), item)
+    #             self.carrega_dados.item(linha, valores.index(valor))
+    #         linha += 1
 
     def carrega_dados(self, row, column):
         self.txt_cpf.setText(self.tabela_clientes.item(row, 0).text())

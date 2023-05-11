@@ -4,15 +4,15 @@ import traceback
 
 class ClientesRepository:
 
-    def select_all(self):
+    def select(self, cpf):
         with DBConnectionHandler() as db:
-            data = db.session.query(Cliente).all()
+            data = db.session.query(Cliente).filter(Cliente.cpf == cpf).first()
             return data
 
-    def select(self, cliente):
-        with DBConnectionHandler() as db:
-            data = db.session.query(Cliente).filter(Cliente.cpf == cliente.cpf).first()
-            return data
+    # def select_all(self):
+    #     with DBConnectionHandler() as db:
+    #         data = db.session.query(Cliente).all()
+    #         return data
 
     def insert(self, cliente):
         with DBConnectionHandler() as db:
