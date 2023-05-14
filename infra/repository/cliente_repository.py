@@ -9,10 +9,10 @@ class ClientesRepository:
             data = db.session.query(Cliente).filter(Cliente.cpf == cpf).first()
             return data
 
-    # def select_all(self):
-    #     with DBConnectionHandler() as db:
-    #         data = db.session.query(Cliente).all()
-    #         return data
+    def select_all(self):
+        with DBConnectionHandler() as db:
+            data = db.session.query(Cliente).all()
+            return data
 
     def insert(self, cliente):
         with DBConnectionHandler() as db:
