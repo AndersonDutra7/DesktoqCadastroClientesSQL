@@ -1,8 +1,8 @@
 from PySide6 import QtWidgets
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import (QMainWindow, QVBoxLayout, QComboBox, QLabel, QLineEdit, QWidget, QPushButton,
-                               QMessageBox, QSizePolicy, QTableWidget, QAbstractItemView, QTableWidgetItem, QHBoxLayout,
-                               QGridLayout, QSplitter)
+from datetime import datetime
+from PySide6.QtWidgets import (QMainWindow, QComboBox, QLabel, QLineEdit, QWidget, QPushButton,
+                               QMessageBox, QSizePolicy, QTableWidget, QAbstractItemView, QTableWidgetItem,
+                               QGridLayout)
 
 
 from sqlalchemy.dialects.mssql import json
@@ -14,7 +14,7 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self.setMinimumSize(400, 400)
-        # self.showMaximized()
+        self.showMaximized()
         self.setWindowTitle('Cadastro de Clientes')
 
         self.lbl_cpf = QLabel('CPF')
@@ -50,46 +50,47 @@ class MainWindow(QMainWindow):
         self.btn_limpar = QPushButton('Limpar')
         self.btn_remover = QPushButton('Remover')
         self.tabela_clientes = QTableWidget()
+        self.data_criacao = datetime.now()
 
-        self.tabela_clientes.setColumnCount(12)
+        self.tabela_clientes.setColumnCount(13)
         self.tabela_clientes.setHorizontalHeaderLabels(['CPF', 'Nome', 'Telefone Fixo', 'Telefone Celular', 'Sexo'
                                                         , 'Cep', 'Logradouro', 'Número', 'Complemento', 'Bairro',
-                                                        'Município', 'Estado'])
+                                                        'Município', 'Estado', 'Data Cadastro'])
         self.tabela_clientes.setSelectionMode(QAbstractItemView.NoSelection)
         self.tabela_clientes.setEditTriggers(QAbstractItemView.NoEditTriggers)
 
 
-        layout = QHBoxLayout()
-        layout.addWidget(self.lbl_cpf)
-        layout.addWidget(self.txt_cpf)
-        layout.addWidget(self.lbl_nome)
-        layout.addWidget(self.txt_nome)
-        layout.addWidget(self.lbl_telefone_fixo)
-        layout.addWidget(self.txt_telefone_fixo)
-        layout.addWidget(self.lbl_telefone_celular)
-        layout.addWidget(self.txt_telefone_celular)
-        layout.addWidget(self.lbl_sexo)
-        layout.addWidget(self.cb_sexo)
-        layout.addWidget(self.lbl_cep)
-        layout.addWidget(self.txt_cep)
-        layout.addWidget(self.lbl_logradouro)
-        layout.addWidget(self.txt_logradouro)
-        layout.addWidget(self.lbl_numero)
-        layout.addWidget(self.txt_numero)
-        layout.addWidget(self.lbl_complemento)
-        layout.addWidget(self.txt_complemento)
-        layout.addWidget(self.lbl_bairro)
-        layout.addWidget(self.txt_bairro)
-        layout.addWidget(self.lbl_municipio)
-        layout.addWidget(self.txt_municipio)
-        layout.addWidget(self.lbl_estado)
-        layout.addWidget(self.txt_estado)
-        # layout.addWidget(self.tabela_clientes, 0, 1)
-        # self.tabela_clientes.setSpan(0, 1, self.tabela_clientes.rowCount(), 23)
+        layout = QGridLayout()
+        layout.addWidget(self.lbl_cpf, 0, 0)
+        layout.addWidget(self.txt_cpf, 1, 0)
+        layout.addWidget(self.lbl_nome, 2, 0)
+        layout.addWidget(self.txt_nome, 3, 0)
+        layout.addWidget(self.lbl_telefone_fixo, 0, 2)
+        layout.addWidget(self.txt_telefone_fixo, 1, 2)
+        layout.addWidget(self.lbl_telefone_celular, 0, 3)
+        layout.addWidget(self.txt_telefone_celular, 1, 3)
+        layout.addWidget(self.lbl_sexo, 0, 1)
+        layout.addWidget(self.cb_sexo, 1, 1)
+        layout.addWidget(self.lbl_cep, 2, 1)
+        layout.addWidget(self.txt_cep, 3, 1)
+        layout.addWidget(self.lbl_logradouro, 2, 2)
+        layout.addWidget(self.txt_logradouro, 3, 2)
+        layout.addWidget(self.lbl_numero, 2, 3)
+        layout.addWidget(self.txt_numero, 3, 3)
+        layout.addWidget(self.lbl_complemento, 4, 0)
+        layout.addWidget(self.txt_complemento, 5, 0)
+        layout.addWidget(self.lbl_bairro, 4, 1)
+        layout.addWidget(self.txt_bairro, 5, 1)
+        layout.addWidget(self.lbl_municipio, 4, 2)
+        layout.addWidget(self.txt_municipio, 5, 2)
+        layout.addWidget(self.lbl_estado, 4, 3)
+        layout.addWidget(self.txt_estado, 5, 3)
+        # layout.addWidget(self.data_criacao)
+        layout.addWidget(self.tabela_clientes, 7, 0, 1, 4)
 
-        layout.addWidget(self.btn_salvar)
-        layout.addWidget(self.btn_limpar)
-        layout.addWidget(self.btn_remover)
+        layout.addWidget(self.btn_salvar, 6, 0)
+        layout.addWidget(self.btn_limpar, 6, 1)
+        layout.addWidget(self.btn_remover, 6, 2)
 
         self.container = QWidget()
         self.container.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -107,26 +108,6 @@ class MainWindow(QMainWindow):
         self.tabela_clientes.cellDoubleClicked.connect(self.carrega_dados)
         self.popula_tabela_clientes()
 
-        layout2 = QHBoxLayout()
-        layout2.addWidget(self.tabela_clientes)
-
-        self.container2 = QWidget()
-        self.container2.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.container2.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-        self.setCentralWidget(self.container2)
-        self.container2.setLayout(layout2)
-
-        splitter = QSplitter()
-        splitter.addWidget(self.container)
-        splitter.addWidget(self.container2)
-        self.setCentralWidget(splitter)
-
-        # self.container = QWidget()
-        # self.container.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        # self.container.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-        # self.setCentralWidget(self.container)
-        # self.container.setLayout(splitter)
-
     def salvar_cliente(self):
         db = ClientesRepository()
 
@@ -142,7 +123,8 @@ class MainWindow(QMainWindow):
             complemento=self.txt_complemento.text(),
             bairro=self.txt_bairro.text(),
             municipio=self.txt_municipio.text(),
-            estado=self.txt_estado.text()
+            estado=self.txt_estado.text(),
+            data_cadastro = datetime.now()
         )
 
         if self.btn_salvar.text() == 'Salvar':
@@ -189,8 +171,7 @@ class MainWindow(QMainWindow):
     def consultar_cliente(self):
         if self.txt_cpf.text() != '':
             db = ClientesRepository()
-            # retorno = db.select_all(str(self.txt_cpf.text()))
-            retorno = db.select(str(self.txt_cpf.text()))
+            retorno = db.select_all(str(self.txt_cpf.text()))
 
             if retorno is not None:
                 self.btn_salvar.setText('Atualizar')
@@ -210,6 +191,7 @@ class MainWindow(QMainWindow):
                 self.txt_bairro.setText(retorno[9])
                 self.txt_municipio.setText(retorno[10])
                 self.txt_estado.setText(retorno[11])
+                self.data_criacao.setText(retorno[12])
                 self.btn_remover.setVisible(True)
 
 
@@ -278,7 +260,7 @@ class MainWindow(QMainWindow):
         for cliente in lista_clientes:
             valores = [cliente.cpf, cliente.nome_cliente, cliente.telefone_fixo, cliente.telefone_celular,
                        cliente.sexo, cliente.cep, cliente.logradouro, cliente.numero, cliente.complemento,
-                       cliente.bairro, cliente.estado]
+                       cliente.bairro, cliente.municipio, cliente.estado, cliente.data_cadastro]
             for valor in valores:
                 item = QTableWidgetItem(str(valor))
                 self.tabela_clientes.setItem(linha, valores.index(valor), item)
@@ -299,6 +281,7 @@ class MainWindow(QMainWindow):
         self.txt_bairro.setText(self.tabela_clientes.item(row, 9).text())
         self.txt_municipio.setText(self.tabela_clientes.item(row, 10).text())
         self.txt_estado.setText(self.tabela_clientes.item(row, 11).text())
+        self.data_criacao.setText(self.tabela_clientes.item(row, 12).text())
         self.btn_salvar.setText('Atualizar')
         self.btn_remover.setVisible(True)
         self.txt_cpf.setReadOnly(True)
