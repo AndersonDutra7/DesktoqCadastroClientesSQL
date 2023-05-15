@@ -176,7 +176,7 @@ class MainWindow(QMainWindow):
     def consultar_cliente(self):
         if self.txt_cpf.text() != '':
             db = ClientesRepository()
-            retorno = db.select_all(self.txt_cpf.text)
+            retorno = db.select_all(str(self.txt_cpf.text()))
 
             if retorno is not None:
                 self.btn_salvar.setText('Atualizar')
@@ -198,10 +198,10 @@ class MainWindow(QMainWindow):
                 self.txt_estado.setText(retorno[11])
                 # self.lbl_data_criacao.setText(retorno[12])
                 self.btn_remover.setVisible(True)
+                self.btn_limpar.setVisible((True))
 
 
     def remover_cliente(self):
-        db = ClientesRepository()
         msg = QMessageBox()
         msg.setWindowTitle('Remover Cliente')
         msg.setText('Este cliente será removido.')

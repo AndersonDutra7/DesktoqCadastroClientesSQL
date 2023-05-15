@@ -25,25 +25,25 @@ class ClientesRepository:
                 traceback.print_exc()
                 return str(e)
 
-    def delete(self, cliente):
+    def delete(self, cpf):
         with DBConnectionHandler() as db:
             try:
-                db.session.query(Cliente).filter(Cliente.cpf == cliente).delete()
+                db.session.query(Cliente).filter(Cliente.cpf == cpf).delete()
                 db.session.commit()
                 return "Ok"
             except Exception as e:
                 db.session.rollback()
-            return e
+            return str(e)
 
     def update(self, cliente):
         with DBConnectionHandler() as db:
             db.session.commit()
             try:
-                db.session.query(Cliente).filter(Cliente.cpf == id).update({Cliente.nome_cliente: cliente.nome_cliente, Cliente.telefone_fixo: cliente.telefone_fixo, Cliente.telefone_celular: cliente.telefone_celular,
+                db.session.query(Cliente).filter(Cliente.cpf == cliente.cpf).update({Cliente.nome_cliente: cliente.nome_cliente, Cliente.telefone_fixo: cliente.telefone_fixo, Cliente.telefone_celular: cliente.telefone_celular,
                                                                             Cliente.sexo: cliente.sexo, Cliente.cep: cliente.cep, Cliente.logradouro: cliente.logradouro, Cliente.numero: cliente.numero, Cliente.bairro: cliente.bairro,
                                                                             Cliente.complemento: cliente.complemento, Cliente.municipio: cliente.municipio, Cliente.estado: cliente.estado})
                 db.session.commit()
                 return "Ok"
             except Exception as e:
                 db.session.rollback()
-                return e
+                return str(e)
