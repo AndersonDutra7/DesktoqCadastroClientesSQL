@@ -28,7 +28,7 @@ class ClientesRepository:
     def delete(self, cliente):
         with DBConnectionHandler() as db:
             try:
-                db.session.query(Cliente).filter(Cliente.cpf == cliente.cpf).delete()
+                db.session.query(Cliente).filter(Cliente.cpf == cliente).delete()
                 db.session.commit()
                 return "Ok"
             except Exception as e:

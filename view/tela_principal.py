@@ -1,3 +1,5 @@
+import requests
+import json
 from PySide6 import QtWidgets
 from datetime import datetime
 from PySide6.QtWidgets import (QMainWindow, QComboBox, QLabel, QLineEdit, QWidget, QPushButton,
@@ -7,6 +9,7 @@ from PySide6.QtWidgets import (QMainWindow, QComboBox, QLabel, QLineEdit, QWidge
 
 from sqlalchemy.dialects.mssql import json
 from infra.entities.cliente import Cliente
+from infra.entities.widgets import GridLayoutGremio
 from infra.repository.cliente_repository import ClientesRepository
 
 class MainWindow(QMainWindow):
@@ -49,8 +52,9 @@ class MainWindow(QMainWindow):
         self.btn_salvar = QPushButton('Salvar')
         self.btn_limpar = QPushButton('Limpar')
         self.btn_remover = QPushButton('Remover')
+        self.lbl_socios = QLabel("QUADRO DE SÓCIOS")
         self.tabela_clientes = QTableWidget()
-        self.data_criacao = datetime.now()
+        # self.lbl_data_criacao = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         self.tabela_clientes.setColumnCount(13)
         self.tabela_clientes.setHorizontalHeaderLabels(['CPF', 'Nome', 'Telefone Fixo', 'Telefone Celular', 'Sexo'
@@ -60,17 +64,17 @@ class MainWindow(QMainWindow):
         self.tabela_clientes.setEditTriggers(QAbstractItemView.NoEditTriggers)
 
 
-        layout = QGridLayout()
+        layout = GridLayoutGremio()
         layout.addWidget(self.lbl_cpf, 0, 0)
         layout.addWidget(self.txt_cpf, 1, 0)
-        layout.addWidget(self.lbl_nome, 2, 0)
-        layout.addWidget(self.txt_nome, 3, 0)
+        layout.addWidget(self.lbl_nome, 0, 1)
+        layout.addWidget(self.txt_nome, 1, 1)
         layout.addWidget(self.lbl_telefone_fixo, 0, 2)
         layout.addWidget(self.txt_telefone_fixo, 1, 2)
         layout.addWidget(self.lbl_telefone_celular, 0, 3)
         layout.addWidget(self.txt_telefone_celular, 1, 3)
-        layout.addWidget(self.lbl_sexo, 0, 1)
-        layout.addWidget(self.cb_sexo, 1, 1)
+        layout.addWidget(self.lbl_sexo, 2, 0)
+        layout.addWidget(self.cb_sexo, 3, 0)
         layout.addWidget(self.lbl_cep, 2, 1)
         layout.addWidget(self.txt_cep, 3, 1)
         layout.addWidget(self.lbl_logradouro, 2, 2)
@@ -86,7 +90,8 @@ class MainWindow(QMainWindow):
         layout.addWidget(self.lbl_estado, 4, 3)
         layout.addWidget(self.txt_estado, 5, 3)
         # layout.addWidget(self.data_criacao)
-        layout.addWidget(self.tabela_clientes, 7, 0, 1, 4)
+        layout.addWidget(self.lbl_socios, 7, 0)
+        layout.addWidget(self.tabela_clientes, 9, 0, 1, 4)
 
         layout.addWidget(self.btn_salvar, 6, 0)
         layout.addWidget(self.btn_limpar, 6, 1)
@@ -124,7 +129,7 @@ class MainWindow(QMainWindow):
             bairro=self.txt_bairro.text(),
             municipio=self.txt_municipio.text(),
             estado=self.txt_estado.text(),
-            data_cadastro = datetime.now()
+            data_cadastro = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         )
 
         if self.btn_salvar.text() == 'Salvar':
@@ -171,7 +176,7 @@ class MainWindow(QMainWindow):
     def consultar_cliente(self):
         if self.txt_cpf.text() != '':
             db = ClientesRepository()
-            retorno = db.select_all(str(self.txt_cpf.text()))
+            retorno = db.select_all(self.txt_cpf.text)
 
             if retorno is not None:
                 self.btn_salvar.setText('Atualizar')
@@ -191,7 +196,7 @@ class MainWindow(QMainWindow):
                 self.txt_bairro.setText(retorno[9])
                 self.txt_municipio.setText(retorno[10])
                 self.txt_estado.setText(retorno[11])
-                self.data_criacao.setText(retorno[12])
+                # self.lbl_data_criacao.setText(retorno[12])
                 self.btn_remover.setVisible(True)
 
 
@@ -268,20 +273,34 @@ class MainWindow(QMainWindow):
             linha += 1
 
     def carrega_dados(self, row, column):
-        self.txt_cpf.setText(self.tabela_clientes.item(row, 0).text())
-        self.txt_nome.setText(self.tabela_clientes.item(row, 1).text())
-        self.txt_telefone_fixo.setText(self.tabela_clientes.item(row, 2).text())
-        self.txt_telefone_celular.setText(self.tabela_clientes.item(row, 3).text())
+        self.txt_cpf.setText(
+            self.tabela_clientes.item(row, 0).text() if self.tabela_clientes.item(row, 0) is not None else "")
+        self.txt_nome.setText(
+            self.tabela_clientes.item(row, 1).text() if self.tabela_clientes.item(row, 1) is not None else "")
+        self.txt_telefone_fixo.setText(
+            self.tabela_clientes.item(row, 2).text() if self.tabela_clientes.item(row, 2) is not None else "")
+        self.txt_telefone_celular.setText(
+            self.tabela_clientes.item(row, 3).text() if self.tabela_clientes.item(row, 3) is not None else "")
         sexo_map = {'Não Informado': 0, 'Feminino': 1, 'Masculino': 2}
-        self.cb_sexo.setCurrentIndex(sexo_map.get(self.tabela_clientes.item(row, 4).text(), 0))
-        self.txt_cep.setText(self.tabela_clientes.item(row, 5).text())
-        self.txt_logradouro.setText(self.tabela_clientes.item(row, 6).text())
-        self.txt_numero.setText(self.tabela_clientes.item(row, 7).text())
-        self.txt_complemento.setText(self.tabela_clientes.item(row, 8).text())
-        self.txt_bairro.setText(self.tabela_clientes.item(row, 9).text())
-        self.txt_municipio.setText(self.tabela_clientes.item(row, 10).text())
-        self.txt_estado.setText(self.tabela_clientes.item(row, 11).text())
-        self.data_criacao.setText(self.tabela_clientes.item(row, 12).text())
+        self.cb_sexo.setCurrentIndex(
+            sexo_map.get(self.tabela_clientes.item(row, 4).text(), 0) if self.tabela_clientes.item(row,
+                                                                                                   4) is not None else 0)
+        self.txt_cep.setText(
+            self.tabela_clientes.item(row, 5).text() if self.tabela_clientes.item(row, 5) is not None else "")
+        self.txt_logradouro.setText(
+            self.tabela_clientes.item(row, 6).text() if self.tabela_clientes.item(row, 6) is not None else "")
+        self.txt_numero.setText(
+            self.tabela_clientes.item(row, 7).text() if self.tabela_clientes.item(row, 7) is not None else "")
+        self.txt_complemento.setText(
+            self.tabela_clientes.item(row, 8).text() if self.tabela_clientes.item(row, 8) is not None else "")
+        self.txt_bairro.setText(
+            self.tabela_clientes.item(row, 9).text() if self.tabela_clientes.item(row, 9) is not None else "")
+        self.txt_municipio.setText(
+            self.tabela_clientes.item(row, 10).text() if self.tabela_clientes.item(row, 10) is not None else "")
+        self.txt_estado.setText(
+            self.tabela_clientes.item(row, 11).text() if self.tabela_clientes.item(row, 11) is not None else "")
+        # self.lbl_data_criacao.setText(
+        #     self.tabela_clientes.item(row, 12).text().strftime('%d/%m/%Y %H:%M:%S') if self.tabela_clientes.item(row, 12).strftime('%d/%m/%Y %H:%M:%S') is not None else "")
         self.btn_salvar.setText('Atualizar')
         self.btn_remover.setVisible(True)
         self.txt_cpf.setReadOnly(True)
