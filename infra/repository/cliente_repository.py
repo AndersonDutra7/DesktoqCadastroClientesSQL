@@ -6,8 +6,8 @@ class ClientesRepository:
 
     def select(self, cpf):
         with DBConnectionHandler() as db:
-            data = db.session.query(Cliente).filter(Cliente.cpf == cpf).first()
-            return data
+            return db.session.query(Cliente).filter(Cliente.cpf == cpf).first()
+
 
     def select_all(self):
         with DBConnectionHandler() as db:

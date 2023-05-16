@@ -1,14 +1,11 @@
-import json
+import json as js
 import requests
 
 from PySide6 import QtWidgets
 from datetime import datetime
 from PySide6.QtWidgets import (QMainWindow, QComboBox, QLabel, QLineEdit, QWidget, QPushButton,
-                               QMessageBox, QSizePolicy, QTableWidget, QAbstractItemView, QTableWidgetItem,
-                               QGridLayout)
+                               QMessageBox, QSizePolicy, QTableWidget, QAbstractItemView, QTableWidgetItem,)
 
-
-from sqlalchemy.dialects.mssql import json
 from infra.entities.cliente import Cliente
 from infra.entities.widgets import GridLayoutGremio
 from infra.repository.cliente_repository import ClientesRepository
@@ -55,7 +52,7 @@ class MainWindow(QMainWindow):
         self.btn_remover = QPushButton('Remover')
         self.lbl_clientes = QLabel("QUADRO DE CLIENTE GRÊMIO MANIA")
         self.tabela_clientes = QTableWidget()
-        # self.lbl_data_criacao = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.lbl_data_cadastro = QLineEdit()
 
         self.tabela_clientes.setColumnCount(13)
         self.tabela_clientes.setHorizontalHeaderLabels(['CPF', 'Nome', 'Telefone Fixo', 'Telefone Celular', 'Sexo'
@@ -90,7 +87,6 @@ class MainWindow(QMainWindow):
         layout.addWidget(self.txt_municipio, 5, 2)
         layout.addWidget(self.lbl_estado, 4, 3)
         layout.addWidget(self.txt_estado, 5, 3)
-        # layout.addWidget(self.data_criacao)
         layout.addWidget(self.lbl_clientes, 7, 0)
         layout.addWidget(self.tabela_clientes, 9, 0, 1, 4)
 
@@ -130,7 +126,7 @@ class MainWindow(QMainWindow):
             bairro=self.txt_bairro.text(),
             municipio=self.txt_municipio.text(),
             estado=self.txt_estado.text(),
-            data_cadastro = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            data_cadastro = datetime.today()
         )
 
         if self.btn_salvar.text() == 'Salvar':
@@ -176,30 +172,28 @@ class MainWindow(QMainWindow):
 
     def consultar_clientes(self):
         if self.txt_cpf.text() != '':
-            try:
-                db = ClientesRepository()
-                retorno = db.select_all(self.txt_cpf.text())
-            except Exception as e:
-                return str(e)
+            db = ClientesRepository()
+            retorno = db.select(self.txt_cpf.text())
+
             if retorno is not None:
                 self.btn_salvar.setText('Atualizar')
                 msg = QMessageBox()
                 msg.setWindowTitle('Cliente já cadastrado')
                 msg.setText(f'O CPF {self.txt_cpf.text()} já esta cadastrado')
                 msg.exec()
-                self.txt_nome.setText(retorno[1])
-                self.txt_telefone_fixo.setText(retorno[2])
-                self.txt_telefone_celular.setText(retorno[3])
+                self.txt_nome.setText(retorno.nome_cliente)
+                self.txt_telefone_fixo.setText(retorno.telefone_fixo)
+                self.txt_telefone_celular.setText(retorno.telefone_celular)
                 sexo_map = {'Não Informado': 0, 'Feminimo': 1, 'Masculino': 2}
-                self.cb_sexo.setCurrentIndex(sexo_map.get(retorno[4], 0))
-                self.txt_cep.setText(retorno[5])
-                self.txt_logradouro.setText(retorno[6])
-                self.txt_numero.setText(retorno[7])
-                self.txt_complemento.setText(retorno[8])
-                self.txt_bairro.setText(retorno[9])
-                self.txt_municipio.setText(retorno[10])
-                self.txt_estado.setText(retorno[11])
-                self.lbl_data_criacao.setText(retorno[12])
+                self.cb_sexo.setCurrentIndex(sexo_map.get(retorno.sexo))
+                self.txt_cep.setText(retorno.cep)
+                self.txt_logradouro.setText(retorno.logradouro)
+                self.txt_numero.setText(retorno.numero)
+                self.txt_complemento.setText(retorno.complemento)
+                self.txt_bairro.setText(retorno.bairro)
+                self.txt_municipio.setText(retorno.municipio)
+                self.txt_estado.setText(retorno.estado)
+                self.lbl_data_cadastro.setText(retorno.data_cadastro)
 
 
     def remover_cliente(self):
@@ -240,9 +234,11 @@ class MainWindow(QMainWindow):
         self.txt_cpf.setReadOnly(False)
 
     def consultar_enderecos(self):
-        url = f'https://viacep.com.br/ws/{str(self.txt_cep.text()).replace(".","").replace("-","")}/json/'
+        cep = str(self.txt_cep.text().replace(".","").replace("-",""))
+        url = f'https://viacep.com.br/ws/{cep}/json/'
         response = requests.get(url)
-        endereco = json.loads(response.text)
+        endereco = js.loads(response.text)
+        #teste = js.loads(response)
 
         if response.status_code == 200 and 'erro' not in endereco:
             self.txt_logradouro.setText(endereco['logradouro'])
@@ -301,8 +297,8 @@ class MainWindow(QMainWindow):
             self.tabela_clientes.item(row, 10).text() if self.tabela_clientes.item(row, 10) is not None else "")
         self.txt_estado.setText(
             self.tabela_clientes.item(row, 11).text() if self.tabela_clientes.item(row, 11) is not None else "")
-        # self.lbl_data_criacao.setText(
-        #     self.tabela_clientes.item(row, 12).text().strftime('%d/%m/%Y %H:%M:%S') if self.tabela_clientes.item(row, 12).strftime('%d/%m/%Y %H:%M:%S') is not None else "")
+        self.lbl_data_cadastro.setText(
+             self.tabela_clientes.item(row, 12).text() if self.tabela_clientes.item(row, 12) is not None else "")
         self.btn_salvar.setText('Atualizar')
         self.btn_remover.setVisible(True)
         self.btn_limpar.setVisible(True)
