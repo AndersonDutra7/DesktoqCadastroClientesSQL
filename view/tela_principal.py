@@ -1,5 +1,6 @@
-import requests
 import json
+import requests
+
 from PySide6 import QtWidgets
 from datetime import datetime
 from PySide6.QtWidgets import (QMainWindow, QComboBox, QLabel, QLineEdit, QWidget, QPushButton,
@@ -52,7 +53,7 @@ class MainWindow(QMainWindow):
         self.btn_salvar = QPushButton('Salvar')
         self.btn_limpar = QPushButton('Limpar')
         self.btn_remover = QPushButton('Remover')
-        self.lbl_socios = QLabel("QUADRO DE SÓCIOS")
+        self.lbl_clientes = QLabel("QUADRO DE CLIENTE GRÊMIO MANIA")
         self.tabela_clientes = QTableWidget()
         # self.lbl_data_criacao = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -90,7 +91,7 @@ class MainWindow(QMainWindow):
         layout.addWidget(self.lbl_estado, 4, 3)
         layout.addWidget(self.txt_estado, 5, 3)
         # layout.addWidget(self.data_criacao)
-        layout.addWidget(self.lbl_socios, 7, 0)
+        layout.addWidget(self.lbl_clientes, 7, 0)
         layout.addWidget(self.tabela_clientes, 9, 0, 1, 4)
 
         layout.addWidget(self.btn_salvar, 6, 0)
@@ -106,7 +107,7 @@ class MainWindow(QMainWindow):
         self.btn_remover.setVisible(False)
         self.btn_limpar.setVisible(False)
         self.btn_salvar.clicked.connect(self.salvar_cliente)
-        self.txt_cpf.editingFinished.connect(self.consultar_cliente)
+        self.txt_cpf.editingFinished.connect(self.consultar_clientes)
         self.txt_cep.editingFinished.connect(self.consultar_enderecos)
         self.btn_remover.clicked.connect(self.remover_cliente)
         self.btn_limpar.clicked.connect(self.limpar_campos)
@@ -173,11 +174,13 @@ class MainWindow(QMainWindow):
         self.txt_cpf.setReadOnly(False)
 
 
-    def consultar_cliente(self):
+    def consultar_clientes(self):
         if self.txt_cpf.text() != '':
-            db = ClientesRepository()
-            retorno = db.select_all(str(self.txt_cpf.text()))
-
+            try:
+                db = ClientesRepository()
+                retorno = db.select_all(self.txt_cpf.text())
+            except Exception as e:
+                return str(e)
             if retorno is not None:
                 self.btn_salvar.setText('Atualizar')
                 msg = QMessageBox()
@@ -196,9 +199,7 @@ class MainWindow(QMainWindow):
                 self.txt_bairro.setText(retorno[9])
                 self.txt_municipio.setText(retorno[10])
                 self.txt_estado.setText(retorno[11])
-                # self.lbl_data_criacao.setText(retorno[12])
-                self.btn_remover.setVisible(True)
-                self.btn_limpar.setVisible((True))
+                self.lbl_data_criacao.setText(retorno[12])
 
 
     def remover_cliente(self):
@@ -234,10 +235,11 @@ class MainWindow(QMainWindow):
             elif isinstance(widget, QComboBox):
                 widget.setCurrentIndex(0)
         self.btn_remover.setVisible(False)
+        self.btn_limpar.setVisible(False)
         self.btn_salvar.setText('Salvar')
         self.txt_cpf.setReadOnly(False)
 
-    def consultar_enderecos(self, requests=None):
+    def consultar_enderecos(self):
         url = f'https://viacep.com.br/ws/{str(self.txt_cep.text()).replace(".","").replace("-","")}/json/'
         response = requests.get(url)
         endereco = json.loads(response.text)
@@ -303,4 +305,5 @@ class MainWindow(QMainWindow):
         #     self.tabela_clientes.item(row, 12).text().strftime('%d/%m/%Y %H:%M:%S') if self.tabela_clientes.item(row, 12).strftime('%d/%m/%Y %H:%M:%S') is not None else "")
         self.btn_salvar.setText('Atualizar')
         self.btn_remover.setVisible(True)
+        self.btn_limpar.setVisible(True)
         self.txt_cpf.setReadOnly(True)
