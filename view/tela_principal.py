@@ -238,7 +238,6 @@ class MainWindow(QMainWindow):
         url = f'https://viacep.com.br/ws/{cep}/json/'
         response = requests.get(url)
         endereco = js.loads(response.text)
-        #teste = js.loads(response)
 
         if response.status_code == 200 and 'erro' not in endereco:
             self.txt_logradouro.setText(endereco['logradouro'])
